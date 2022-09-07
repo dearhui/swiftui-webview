@@ -175,15 +175,43 @@ extension WebViewCoordinator: WKNavigationDelegate {
 }
 
 extension WebViewCoordinator: WKUIDelegate {
-  public func webView(_ webView: WKWebView,
-                      createWebViewWith configuration: WKWebViewConfiguration,
-                      for navigationAction: WKNavigationAction,
-                      windowFeatures: WKWindowFeatures) -> WKWebView? {
-    if navigationAction.targetFrame == nil {
-      webView.load(navigationAction.request)
+    public func webView(_ webView: WKWebView,
+                        createWebViewWith configuration: WKWebViewConfiguration,
+                        for navigationAction: WKNavigationAction,
+                        windowFeatures: WKWindowFeatures) -> WKWebView? {
+        if navigationAction.targetFrame == nil {
+            webView.load(navigationAction.request)
+        }
+        return nil
     }
-    return nil
-  }
+    
+    public func webView(_ webView: WKWebView, runJavaScriptConfirmPanelWithMessage message: String, initiatedByFrame frame: WKFrameInfo, completionHandler: @escaping (Bool) -> Void) {
+        let alertController = UIAlertController(title: nil, message: message, preferredStyle: .alert)
+        
+        alertController.addAction(UIAlertAction(title: "確定", style: .default, handler: { (action) in
+            completionHandler(true)
+        }))
+        
+        alertController.addAction(UIAlertAction(title: "取消", style: .default, handler: { (action) in
+            completionHandler(false)
+        }))
+        
+        if let rootVC = UIApplication.shared.windows.first?.rootViewController {
+            rootVC.present(alertController, animated: true, completion: nil)
+        }
+    }
+    
+    public func webView(_ webView: WKWebView, runJavaScriptAlertPanelWithMessage message: String, initiatedByFrame frame: WKFrameInfo, completionHandler: @escaping () -> Void) {
+        let alertController = UIAlertController(title: nil, message: message, preferredStyle: .alert)
+        
+        alertController.addAction(UIAlertAction(title: "確定", style: .default, handler: { (action) in
+            completionHandler()
+        }))
+        
+        if let rootVC = UIApplication.shared.windows.first?.rootViewController {
+            rootVC.present(alertController, animated: true, completion: nil)
+        }
+    }
 }
 
 public struct WebViewConfig {
