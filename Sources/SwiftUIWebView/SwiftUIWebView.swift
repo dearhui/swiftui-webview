@@ -53,6 +53,7 @@ public struct WebViewState: Equatable {
     public internal(set) var error: Error?
     public internal(set) var canGoBack: Bool
     public internal(set) var canGoForward: Bool
+    public internal(set) var pageWillURL: URL?
     
     public static let empty = WebViewState(isLoading: false,
                                            pageURL: nil,
@@ -60,7 +61,8 @@ public struct WebViewState: Equatable {
                                            pageHTML: nil,
                                            error: nil,
                                            canGoBack: false,
-                                           canGoForward: false)
+                                           canGoForward: false,
+                                           pageWillURL: nil)
     
     public static func == (lhs: WebViewState, rhs: WebViewState) -> Bool {
         lhs.isLoading == rhs.isLoading
@@ -70,6 +72,7 @@ public struct WebViewState: Equatable {
             && lhs.error?.localizedDescription == rhs.error?.localizedDescription
             && lhs.canGoBack == rhs.canGoBack
             && lhs.canGoForward == rhs.canGoForward
+            && lhs.pageWillURL == rhs.pageWillURL
     }
 }
 
@@ -148,6 +151,11 @@ extension WebViewCoordinator: WKNavigationDelegate {
     }
     
     public func webView(_ webView: WKWebView, didStartProvisionalNavigation navigation: WKNavigation!) {
+        
+        var newState = self.webView.state
+        newState.pageWillURL = webView.url
+        self.webView.state = newState
+        
       setLoading(true,
                  canGoBack: webView.canGoBack,
                  canGoForward: webView.canGoForward)
